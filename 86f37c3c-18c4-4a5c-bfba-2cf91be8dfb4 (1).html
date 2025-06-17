@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <base target="_self">
+    <title>Partner Payments Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@preline/preline@2.0.0/dist/preline.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {"50":"#eff6ff","100":"#dbeafe","200":"#bfdbfe","300":"#93c5fd","400":"#60a5fa","500":"#3b82f6","600":"#2563eb","700":"#1d4ed8","800":"#1e40af","900":"#1e3a8a"}
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .fade-in { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .slide-in { animation: slideIn 0.3s ease-out; }
+        @keyframes slideIn { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .input-highlight:focus { box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3); }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 min-h-full font-sans antialiased">
+    <div class="container mx-auto px-4 py-8 max-w-6xl">
+        <!-- Header -->
+        <header class="flex justify-between items-center mb-8">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-800 dark:text-white">Partner Payments</h1>
+                <p class="text-gray-600 dark:text-gray-300">Process monthly bulk payments</p>
+            </div>
+            <div class="flex items-center space-x-4">
+                <button id="darkModeToggle" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">
+                    <i class="fas fa-moon dark:hidden text-gray-600"></i>
+                    <i class="fas fa-sun hidden dark:block text-yellow-300"></i>
+                </button>
+                <div class="flex items-center space-x-2">
+                    <div class="w-8 h-8 rounded-full bg-primary-500 flex items-center justify-center text-white font-semibold">EG</div>
+                    <span class="text-gray-700 dark:text-gray-200">Emily Green</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Progress Steps -->
+        <div class="mb-8">
+            <div class="flex justify-between relative">
+                <div class="absolute top-1/2 left-0 right-0 h-1 bg-gray-200 dark:bg-gray-700 -z-10"></div>
+                <div id="progressBar" class="absolute top-1/2 left-0 h-1 bg-primary-500 transition-all duration-300 -z-10" style="width: 25%;"></div>
+                
+                <div class="flex flex-col items-center">
+                    <div class="w-8 h-8 rounded-full bg-primary-500 flex items-center justify-center text-white font-semibold">1</div>
+                    <span class="text-sm mt-2 text-primary-600 dark:text-primary-400">Verify Details</span>
+                </div>
+                <div class="flex flex-col items-center">
+                    <div class="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-gray-600 dark:text-gray-300 font-semibold">2</div>
+                    <span class="text-sm mt-2 text-gray-500 dark:text-gray-400">Enter Amounts</span>
+                </div>
+                <div class="flex flex-col items-center">
+                    <div class="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-gray-600 dark:text-gray-300 font-semibold">3</div>
+                    <span class="text-sm mt-2 text-gray-500 dark:text-gray-400">Review & Submit</span>
+                </div>
+                <div class="flex flex-col items-center">
+                    <div class="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-gray-600 dark:text-gray-300 font-semibold">4</div>
+                    <span class="text-sm mt-2 text-gray-500 dark:text-gray-400">Confirmation</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <main class="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden transition-all duration-300">
+            <!-- Screen 1: Verify Bank Details -->
+            <div id="screen1" class="p-6 fade-in">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-semibold text-gray-800 dark:text-white">Verify Partner Bank Details</h2>
+                    <span class="text-sm text-gray-500 dark:text-gray-400">Step 1 of 4</span>
+                </div>
+                
+                <p class="text-gray-600 dark:text-gray-300 mb-6">Please verify the bank account details for the following partners before proceeding with payments.</p>
+                
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                        <thead class="bg-gray-50 dark:bg-gray-700">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Partner</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Bank Name</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Account Number</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0 h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
+                                            <i class="fas fa-building text-blue-500"></i>
+                                        </div>
+                                        <div class="ml-4">
+                                            <div class="text-sm font-medium text-gray-900 dark:text-white">Acme Corp</div>
+                                            <div class="text-sm text-gray-500 dark:text-gray-400">Partner ID: ACME-001</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">National Bank</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900 dark:text-white">******7890</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">Pending</span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <button onclick="showDetails('Acme Corp')" class="text-primary-600 hover:text-primary-900 dark:text-primary-400 dark:hover:text-primary-300 mr-3">View</button>
+                                    <button onclick="verifyPartner('Acme Corp')" class="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300">Verify</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0 h-10 w-10 rounded-full bg-purple-100 flex items-center justify-center">
+                                            <i class="fas fa-store text-purple-500"></i>
+                                        </div>
+                                        <div class="ml-4">
+                                            <div class="text-sm font-medium text-gray-900 dark:text-white">Beta Solutions</div>
+                                            <div class="text-sm text-gray-500 dark:text-gray-400">Partner ID: BETA-002</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">Global Finance</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900 dark:text-white">******4567</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">Pending</span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <button onclick="showDetails('Beta Solutions')" class="text-primary-600 hover:text-primary-900 dark:text-primary-400 dark:hover:text-primary-300 mr-3">View</button>
+                                    <button onclick="verifyPartner('Beta Solutions')" class="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300">Verify</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0 h-10 w-10 rounded-full bg-green-100 flex items-center justify-center">
+                                            <i class="fas fa-industry text-green-500"></i>
+                                        </div>
+                                        <div class="ml-4">
+                                            <div class="text-sm font-medium text-gray-900 dark:text-white">Gamma Industries</div>
+                                            <div class="text-sm text-gray-500 dark:text-gray-400">Partner ID: GAMMA-003</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">Metropolitan Bank</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900 dark:text-white">******1234</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">Pending</span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <button onclick="showDetails('Gamma Industries')" class="text-primary-600 hover:text-primary-900 dark:text-primary-400 dark:hover:text-primary-300 mr-3">View</button>
+                                    <button onclick="verifyPartner('Gamma Industries')" class="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300">Verify</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="mt-6 flex justify-end">
+                    <button onclick="nextScreen(2)" class="px-4 py-2 bg-primary-500 hover:bg-primary-600 text-white rounded-md transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 disabled:opacity-50 disabled:cursor-not-allowed" id="nextBtn1" disabled>
+                        Continue to Payment Amounts <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Screen 2: Enter Payment Amounts -->
+            <div id="screen2" class="p-6 hidden">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-semibold text-gray-800 dark:text-white">Enter Payment Amounts</h2>
+                    <span class="text-sm text-gray-500 dark:text-gray-400">Step 2 of 4</span>
+                </div>
+                
+                <p class="text-gray-600 dark:text-gray-300 mb-6">Enter the payment amounts for each partner. All amounts are in USD.</p>
+                
+                <div class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+                            <div class="flex items-center mb-3">
+                                <div class="flex-shrink-0 h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center">
+                                    <i class="fas fa-building text-blue-500 text-sm"></i>
+                                </div>
+                                <div class="ml-3">
+                                    <h3 class="text-sm font-medium text-gray-900 dark:text-white">Acme Corp</h3>
+                                </div>
+                            </div>
+                            <div class="flex items-center">
+                                <span class="text-gray-500 dark:text-gray-400 mr-2">$</span>
+                                <input type="number" id="acmeAmount" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-800 dark:text-white input-highlight" placeholder="0.00" min="0" step="0.01">
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+                            <div class="flex items-center mb-3">
+                                <div class="flex-shrink-0 h-8 w-8 rounded-full bg-purple-100 flex items-center justify-center">
+                                    <i class="fas fa-store text-purple-500 text-sm"></i>
+                                </div>
+                                <div class="ml-3">
+                                    <h3 class="text-sm font-medium text-gray-900 dark:text-white">Beta Solutions</h3>
+                                </div>
+                            </div>
+                            <div class="flex items-center">
+                                <span class="text-gray-500 dark:text-gray-400 mr-2">$</span>
+                                <input type="number" id="betaAmount" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-800 dark:text-white input-highlight" placeholder="0.00" min="0" step="0.01">
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+                            <div class="flex items-center mb-3">
+                                <div class="flex-shrink-0 h-8 w-8 rounded-full bg-green-100 flex items-center justify-center">
+                                    <i class="fas fa-industry text-green-500 text-sm"></i>
+                                </div>
+                                <div class="ml-3">
+                                    <h3 class="text-sm font-medium text-gray-900 dark:text-white">Gamma Industries</h3>
+                                </div>
+                            </div>
+                            <div class="flex items-center">
+                                <span class="text-gray-500 dark:text-gray-400 mr-2">$</span>
+                                <input type="number" id="gammaAmount" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-800 dark:text-white input-highlight" placeholder="0.00" min="0" step="0.01">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+                            <div class="flex items-center mb-3">
+                                <div class="flex-shrink-0 h-8 w-8 rounded-full bg-yellow-100 flex items-center justify-center">
+                                    <i class="fas fa-warehouse text-yellow-500 text-sm"></i>
+                                </div>
+                                <div class="ml-3">
+                                    <h3 class="text-sm font-medium text-gray-900 dark:text-white">Delta Logistics</h3>
+                                </div>
+                            </div>
+                            <div class="flex items-center">
+                                <span class="text-gray-500 dark:text-gray-400 mr-2">$</span>
+                                <input type="number" id="deltaAmount" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-800 dark:text-white input-highlight" placeholder="0.00" min="0" step="0.01">
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+                            <div class="flex items-center mb-3">
+                                <div class="flex-shrink-0 h-8 w-8 rounded-full bg-red-100 flex items-center justify-center">
+                                    <i class="fas fa-shipping-fast text-red-500 text-sm"></i>
+                                </div>
+                                <div class="ml-3">
+                                    <h3 class="text-sm font-medium text-gray-900 dark:text-white">Epsilon Services</h3>
+                                </div>
+                            </div>
+                            <div class="flex items-center">
+                                <span class="text-gray-500 dark:text-gray-400 mr-2">$</span>
+                                <input type="number" id="epsilonAmount" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-800 dark:text-white input-highlight" placeholder="0.00" min="0" step="0.01">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-6 flex justify-between">
+                    <button onclick="prevScreen(1)" class="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800">
+                        <i class="fas fa-arrow-left mr-2"></i> Back
+                    </button>
+                    <button onclick="nextScreen(3)" class="px-4 py-2 bg-primary-500 hover:bg-primary-600 text-white rounded-md transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 disabled:opacity-50 disabled:cursor-not-allowed" id="nextBtn2">
+                        Review Payments <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Screen 3: Review & Submit Payments -->
+            <div id="screen3" class="p-6 hidden">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-semibold text-gray-800 dark:text-white">Review & Submit Payments</h2>
+                    <span class="text-sm text-gray-500 dark:text-gray-400">Step 3 of 4</span>
+                </div>
+                
+                <p class="text-gray-600 dark:text-gray-300 mb-6">Please review all payment details before submission. Total amount to be paid: <span id="totalAmount" class="font-semibold text-gray-900 dark:text-white">$0.00</span></p>
+                
+                <div class="overflow-x-auto mb-6">
+                    <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                        <thead class="bg-gray-50 dark:bg-gray-700">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Partner</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Bank Details</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Amount</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700" id="reviewTableBody">
+                            <!-- Filled by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-info-circle text-blue-400"></i>
+                        </div>
+                        <div class="ml-3">
+                            <h3 class="text-sm font-medium text-blue-800 dark:text-blue-200">Payment Information</h3>
+                            <div class="mt-2 text-sm text-blue-700 dark:text-blue-300">
+                                <p>Payments will be processed immediately after submission. You'll receive a confirmation email with transaction details.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-6 flex justify-between">
+                    <button onclick="prevScreen(2)" class="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800">
+                        <i class="fas fa-arrow-left mr-2"></i> Back
+                    </button>
+                    <button onclick="submitPayments()" class="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-md transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800">
+                        Submit Payments <i class="fas fa-paper-plane ml-2"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Screen 4: Payment Confirmation -->
+            <div id="screen4" class="p-6 hidden">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-semibold text-gray-800 dark:text-white">Payment Confirmation</h2>
+                    <span class="text-sm text-gray-500 dark:text-gray-400">Step 4 of 4</span>
+                </div>
+                
+                <div class="text-center py-8">
+                    <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 dark:bg-green-900 mb-4">
+                        <i class="fas fa-check text-green-600 dark:text-green-300"></i>
+                    </div>
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">Payments Submitted Successfully!</h3>
+                    <p class="text-gray-600 dark:text-gray-300 mb-6">Your monthly partner payments have been processed. Transaction reference: <span class="font-mono text-primary-600 dark:text-primary-400">PAY-2023-11-7890</span></p>
+                    
+                    <div class="max-w-md mx-auto bg-gray-50 dark:bg-gray-700 rounded-lg p-4 mb-6">
+                        <div class="flex justify-between mb-2">
+                            <span class="text-gray-600 dark:text-gray-300">Total Amount:</span>
+                            <span id="confirmationTotal" class="font-semibold text-gray-900 dark:text-white">$0.00</span>
+                        </div>
+                        <div class="flex justify-between mb-2">
+                            <span class="text-gray-600 dark:text-gray-300">Number of Partners:</span>
+                            <span id="confirmationCount" class="font-semibold text-gray-900 dark:text-white">0</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600 dark:text-gray-300">Processing Date:</span>
+                            <span class="font-semibold text-gray-900 dark:text-white" id="processingDate"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-yellow-50 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 mb-6 max-w-md mx-auto">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-bell text-yellow-400"></i>
+                            </div>
+                            <div class="ml-3">
+                                <h3 class="text-sm font-medium text-yellow-800 dark:text-yellow-200">Notification Preferences</h3>
+                                <div class="mt-2 text-sm text-yellow-700 dark:text-yellow-300">
+                                    <div class="flex items-center mb-2">
+                                        <input id="emailNotifications" type="checkbox" class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 dark:border-gray-600 rounded dark:bg-gray-800" checked>
+                                        <label for="emailNotifications" class="ml-2 block text-sm">Email confirmation</label>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <input id="errorNotifications" type="checkbox" class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 dark:border-gray-600 rounded dark:bg-gray-800" checked>
+                                        <label for="errorNotifications" class="ml-2 block text-sm">Error alerts</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 flex justify-center space-x-4">
+                        <button onclick="viewPaymentHistory()" class="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800">
+                            View Payment History <i class="fas fa-history ml-2"></i>
+                        </button>
+                        <button onclick="newPaymentBatch()" class="px-4 py-2 bg-primary-500 hover:bg-primary-600 text-white rounded-md transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800">
+                            New Payment Batch <i class="fas fa-plus ml-2"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Partner Details Modal -->
+    <div id="partnerDetailsModal" class="hidden fixed inset-0 overflow-y-auto z-50">
+        <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 transition-opacity" aria-hidden="true">
+                <div class="absolute inset-0 bg-gray-500 dark:bg-gray-900 opacity-75"></div>
+            </div>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            <div class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                <div class="px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <div class="sm:flex sm:items-start">
+                        <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 dark:bg-blue-900 sm:mx-0 sm:h-10 sm:w-10">
+                            <i class="fas fa-building text-blue-500 dark:text-blue-300"></i>
+                        </div>
+                        <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                            <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white" id="modalPartnerName">Partner Details</h3>
+                            <div class="mt-2">
+                                <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+                                    <div class="grid grid-cols-2 gap-4 text-sm text-gray-700 dark:text-gray-300">
+                                        <div>
+                                            <p class="font-medium">Bank Name:</p>
+                                            <p id="modalBankName">-</p>
+                                        </div>
+                                        <div>
+                                            <p class="font-medium">Account Type:</p>
+                                            <p id="modalAccountType">-</p>
+                                        </div>
+                                        <div>
+                                            <p class="font-medium">Account Number:</p>
+                                            <p id="modalAccountNumber">-</p>
+                                        </div>
+                                        <div>
+                                            <p class="font-medium">Routing Number:</p>
+                                            <p id="modalRoutingNumber">-</p>
+                                        </div>
+                                        <div class="col-span-2">
+                                            <p class="font-medium">Last Verified:</p>
+                                            <p id="modalLastVerified">-</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                    <button type="button" onclick="closeModal()" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-primary-500 text-base font-medium text-white hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 sm:ml-3 sm:w-auto sm:text-sm">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Dark mode toggle
+        document.getElementById('darkModeToggle').addEventListener('click', function() {
+            document.documentElement.classList.toggle('dark');
+            localStorage.setItem('darkMode', document.documentElement.classList.contains('dark'));
+        });
+
+        // Check for saved dark mode preference
+        if (localStorage.getItem('darkMode') === 'true' || 
+            (!localStorage.getItem('darkMode') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        }
+
+        // Partner data
+        const partners = {
+            'Acme Corp': {
+                id: 'ACME-001',
+                bank: 'National Bank',
+                account: '7890123456',
+                routing: '026009593',
+                type: 'Checking',
+                verified: false,
+                lastVerified: '2023-10-15'
+            },
+            'Beta Solutions': {
+                id: 'BETA-002',
+                bank: 'Global Finance',
+                account: '4567890123',
+                routing: '021000021',
+                type: 'Savings',
+                verified: false,
+                lastVerified: '2023-09-28'
+            },
+            'Gamma Industries': {
+                id: 'GAMMA-003',
+                bank: 'Metropolitan Bank',
+                account: '1234567890',
+                routing: '054001220',
+                type: 'Checking',
+                verified: false,
+                lastVerified: '2023-11-02'
+            },
+            'Delta Logistics': {
+                id: 'DELTA-004',
+                bank: 'Coastal Bank',
+                account: '3456789012',
+                routing: '067014822',
+                type: 'Checking',
+                verified: true,
+                lastVerified: '2023-11-10'
+            },
+            'Epsilon Services': {
+                id: 'EPSILON-005',
+                bank: 'Union Trust',
+                account: '8901234567',
+                routing: '075000022',
+                type: 'Savings',
+                verified: true,
+                lastVerified: '2023-11-12'
+            }
+        };
+
+        // Screen navigation
+        function showScreen(screenNumber) {
+            document.querySelectorAll('[id^="screen"]').forEach(screen => {
+                screen.classList.add('hidden');
+                screen.classList.remove('fade-in');
+            });
+            document.getElementById(`screen${screenNumber}`).classList.remove('hidden');
+            setTimeout(() => {
+                document.getElementById(`screen${screenNumber}`).classList.add('fade-in');
+            }, 10);
+            
+            // Update progress bar
+            const progressPercentage = (screenNumber - 1) * 33.33;
+            document.getElementById('progressBar').style.width = `${progressPercentage}%`;
+            
+            // Update step indicators
+            document.querySelectorAll('[id^="progressStep"]').forEach((step, index) => {
+                if (index < screenNumber) {
+                    step.classList.remove('bg-gray-200', 'dark:bg-gray-700', 'text-gray-600', 'dark:text-gray-300');
+                    step.classList.add('bg-primary-500', 'text-white');
+                } else {
+                    step.classList.add('bg-gray-200', 'dark:bg-gray-700', 'text-gray-600', 'dark:text-gray-300');
+                    step.classList.remove('bg-primary-500', 'text-white');
+                }
+            });
+        }
+
+        function nextScreen(next) {
+            if (next === 2) {
+                // Check if at least one partner is verified
+                const verifiedPartners = Object.values(partners).filter(p => p.verified).length;
+                if (verifiedPartners < 3) {
+                    alert('Please verify at least 3 partners before proceeding.');
+                    return;
+                }
+            } else if (next === 3) {
+                // Calculate and display total amount
+                updateReviewTable();
+            } else if (next === 4) {
+                // Set confirmation details
+                const today = new Date();
+                document.getElementById('processingDate').textContent = today.toLocaleDateString('en-US', { 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                
+                const amounts = getPaymentAmounts();
+                const total = amounts.reduce((sum, amount) => sum + amount, 0);
+                const count = amounts.filter(amount => amount > 0).length;
+                
+                document.getElementById('confirmationTotal').textContent = `$${total.toFixed(2)}`;
+                document.getElementById('confirmationCount').textContent = count;
+            }
+            
+            showScreen(next);
+        }
+
+        function prevScreen(prev) {
+            showScreen(prev);
+        }
+
+        // Partner verification
+        function verifyPartner(partnerName) {
+            partners[partnerName].verified = true;
+            partners[partnerName].lastVerified = new Date().toISOString().split('T')[0];
+            
+            // Update UI
+            const verifiedCount = Object.values(partners).filter(p => p.verified).length;
+            if (verifiedCount >= 3) {
+                document.getElementById('nextBtn1').disabled = false;
+            }
+            
+            // In a real app, you would update the table row here
+            alert(`${partnerName} has been verified.`);
+        }
+
+        // Modal functions
+        function showDetails(partnerName) {
+            const partner = partners[partnerName];
+            document.getElementById('modalPartnerName').textContent = partnerName;
+            document.getElementById('modalBankName').textContent = partner.bank;
+            document.getElementById('modalAccountType').textContent = partner.type;
+            document.getElementById('modalAccountNumber').textContent = `••••••${partner.account.slice(-4)}`;
+            document.getElementById('modalRoutingNumber').textContent = partner.routing;
+            document.getElementById('modalLastVerified').textContent = partner.lastVerified;
+            
+            document.getElementById('partnerDetailsModal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('partnerDetailsModal').classList.add('hidden');
+        }
+
+        // Payment functions
+        function getPaymentAmounts() {
+            return [
+                parseFloat(document.getElementById('acmeAmount').value) || 0,
+                parseFloat(document.getElementById('betaAmount').value) || 0,
+                parseFloat(document.getElementById('gammaAmount').value) || 0,
+                parseFloat(document.getElementById('deltaAmount').value) || 0,
+                parseFloat(document.getElementById('epsilonAmount').value) || 0
+            ];
+        }
+
+        function updateReviewTable() {
+            const amounts = getPaymentAmounts();
+            const total = amounts.reduce((sum, amount) => sum + amount, 0);
+            document.getElementById('totalAmount').textContent = `$${total.toFixed(2)}`;
+            
+            const partnerNames = ['Acme Corp', 'Beta Solutions', 'Gamma Industries', 'Delta Logistics', 'Epsilon Services'];
+            const tableBody = document.getElementById('reviewTableBody');
+            tableBody.innerHTML = '';
+            
+            partnerNames.forEach((name, index) => {
+                if (amounts[index] > 0) {
+                    const partner = partners[name];
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0 h-10 w-10 rounded-full ${index % 3 === 0 ? 'bg-blue-100' : index % 3 === 1 ? 'bg-purple-100' : 'bg-green-100'} flex items-center justify-center">
+                                    <i class="${index % 3 === 0 ? 'fas fa-building text-blue-500' : index % 3 === 1 ? 'fas fa-store text-purple-500' : 'fas fa-industry text-green-500'}"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <div class="text-sm font-medium text-gray-900 dark:text-white">${name}</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">${partner.id}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                            ${partner.bank}<br>
+                            <span class="text-xs font-mono">••••••${partner.account.slice(-4)}</span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
+                            $${amounts[index].toFixed(2)}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">Ready</span>
+                        </td>
+                    `;
+                    tableBody.appendChild(row);
+                }
+            });
+        }
+
+        function submitPayments() {
+            // In a real app, this would send data to the server
+            nextScreen(4);
+        }
+
+        function viewPaymentHistory() {
+            alert('Payment history would be displayed here in a real application.');
+        }
+
+        function newPaymentBatch() {
+            // Reset form and go back to screen 1
+            document.querySelectorAll('input[type="number"]').forEach(input => {
+                input.value = '';
+            });
+            
+            // Reset verification status for demo purposes
+            Object.keys(partners).forEach(name => {
+                if (['Acme Corp', 'Beta Solutions', 'Gamma Industries'].includes(name)) {
+                    partners[name].verified = false;
+                }
+            });
+            
+            document.getElementById('nextBtn1').disabled = true;
+            showScreen(1);
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            showScreen(1);
+            
+            // Set today's date for confirmation screen
+            const today = new Date();
+            document.getElementById('processingDate').textContent = today.toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            
+            // Prevent default anchor behavior
+            document.querySelectorAll('a').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    e.preventDefault();
+                });
+            });
+        });
+    </script>
+</body>
+</html>
